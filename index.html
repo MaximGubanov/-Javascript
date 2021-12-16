@@ -15,8 +15,31 @@
         <li class="header__item">
           <a href="#">Главная</a>
         </li>
-        <li class="header__item header__item--size">
+        <li class="header__item header__item--size cart">
           <a href="#"><i class="fas fa-shopping-cart"></i></a>
+          <div class="cart-box">
+            <!-- <ul class="cart-list"></ul> -->
+            <table class="cart-list">
+              <caption>Корзина</caption>
+              <thead>
+                <tr>
+                  <th>№</th>
+                  <th>Название</th>
+                  <th>Цена</th>
+                  <th>Кол-во</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody class="cart-body">
+
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td>Итого:</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
         </li>
       </div>
     </div>
@@ -27,5 +50,6 @@
     </div>
   </main>
   <script src="script.js"></script>
+  <script src="script-popup.js"></script>
 </body>
 </html>

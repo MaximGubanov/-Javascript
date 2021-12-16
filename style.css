@@ -31,6 +31,40 @@ img {width: 100%;}
 
 .header__item--size {font-size: 30px;}
 
+.cart {
+    position: relative;
+}
+
+.cart-box {
+    display: none;
+    position: absolute;
+    top: 54px;
+    right: 0;
+    z-index: 10;
+    background: rgb(255, 255, 255);
+    border: 1px solid rgb(155, 155, 155);
+    border-radius: 4px;
+    width: 400px;
+    padding: 10px;
+}
+
+.cart-list {
+    text-transform: capitalize;
+    color:rgb(114, 114, 114); 
+    font-size: 14px;
+    line-height: 24px;
+    width: 100%;
+}
+.cart-list a {
+    color:rgb(114, 114, 114); 
+    font-size: 14px;
+    line-height: 24px;
+}
+
+.active {
+    display: block;
+}
+
 .main {
     padding: 10px 0px;
 }
