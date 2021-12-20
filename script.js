@@ -74,7 +74,6 @@ class Cart {
     } else {
       this.list.push(new GoodStack(good))
     }
-
   }
 
   remove(id) {
@@ -87,7 +86,19 @@ class Cart {
         this.list.splice(idx, 1)
       }
     } 
+  }
 
+  _renderRow({id, good, count}) {
+    return `<tr><td>${id}</td><td>${good.title}</td><td>${good.price}</td><td>${count}</td><td><a href="" id="${id} class="remove-button">Удалить</a></td></tr>`;
+  }
+
+  render() {
+    const $cartBody = document.querySelector('.cart-body');
+
+    this.list.forEach((row) => {
+      let goodsList = this._renderRow(row);
+      $cartBody.insertAdjacentHTML('beforeend', goodsList);
+    });
   }
 }
 
@@ -117,42 +128,17 @@ class Showcase {
       this.cart.add(this.list[idx])
     }
   }
-}
 
-class RenderShowCase {
-  constructor(goodsList) {
-    this.goodsList = goodsList;
-  }
-
-  renderItem({id, title, price, img}) {
+  _renderRow({id, title, price, img}) {
     return `<div class="goods-item"><img src="img/${img}.jpg" alt=""><h3>${title}</h3><p>Цена: ${price}</p><p><a href="#" id="${id}" class="add-button">Добавить</a></p></p></div>`;
   }
 
   render() {
     const $goodsList = document.querySelector('.goods-list');
 
-    this.goodsList.forEach((list) => {
-      let goodsList = this.renderItem(list);
+    this.list.forEach((row) => {
+      let goodsList = this._renderRow(row);
       $goodsList.insertAdjacentHTML('beforeend', goodsList);
-    });
-  }
-}
-
-class RenderCart {
-  constructor(cartGoods) {
-    this.cartGoods = cartGoods;
-  }
-
-  renderItem({id, good, count}) {
-    return `<tr><td>${id}</td><td>${good.title}</td><td>${good.price}</td><td>${count}</td><td><a href="" id="${id} class="remove-button">Удалить</a></td></tr>`;
-  }
-
-  render() {
-    const $cartBody = document.querySelector('.cart-body');
-
-    this.cartGoods.forEach((list) => {
-      let goodsList = this.renderItem(list);
-      $cartBody.insertAdjacentHTML('beforeend', goodsList);
     });
   }
 }
@@ -161,8 +147,6 @@ const cart = new Cart()
 const showcase = new Showcase(cart)
 
 showcase.fetchGoods()
-const goods = showcase.list
-const cartGoods = showcase.cart
 
 showcase.addToCart(1)
 showcase.addToCart(1)
@@ -174,9 +158,6 @@ showcase.addToCart(4)
 showcase.addToCart(4)
 cart.remove(1)
 
-const rendershowcase = new RenderShowCase(goods)
-rendershowcase.render()
-
-const rendercart = new RenderCart(cartGoods.list)
-rendercart.render()
+showcase.render()
+cart.render()
 
