@@ -35,6 +35,16 @@ img {width: 100%;}
     position: relative;
 }
 
+.cart span {
+    font-size: 14px;
+    color:  rgb(53, 53, 53);
+    font-weight: 700;
+    position: absolute;
+    z-index: 50;
+    top: 20%;
+    left: 48%;
+}
+
 .cart-box {
     display: none;
     position: absolute;
