@@ -1,3 +1,42 @@
+// const API_URL = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses/';
+const API_URL = 'https://raw.githubusercontent.com/MaximGubanov/online-store-api/main/responses/';
+const API_URL_CART = 'https://raw.githubusercontent.com/MaximGubanov/online-store-api/main/responses/';
+
+function send(onError, onSuccess, url, method = 'GET', data = '', headers = {}, timeout = 60000) {
+ 
+  let xhr;
+
+  if (window.XMLHttpRequest) {
+    // Chrome, Mozilla, Opera, Safari
+    xhr = new XMLHttpRequest();
+  } else if (window.ActiveXObject) { 
+    // Internet Explorer
+    xhr = new ActiveXObject("Microsoft.XMLHTTP");
+  }
+
+  for([key, value] of Object.entries(headers)) {
+    xhr.setRequestHeader(key, value)
+  }
+
+  xhr.timeout = timeout; 
+
+  xhr.ontimeout = onError;
+
+  xhr.onreadystatechange = function () {
+    if (xhr.readyState === 4) {
+      if(xhr.status < 400) {
+        onSuccess(xhr.responseText)
+      } else if (xhr.status >= 400) {
+        onError(xhr.status)
+      }
+    }
+  }
+
+  xhr.open(method, url, true);
+
+  xhr.send(data);
+}
+
 function getCounter() {
   let last = 0;
 
@@ -88,6 +127,38 @@ class Cart {
     } 
   }
 
+
+
+  _onSuccess(response) {
+    const data = JSON.parse(response)
+    data.forEach(product => {
+      this.list.push(
+        new GoodStack({id: product.id, title: product.title, price: product.price, count: product.count})
+      )
+    });
+  }
+
+  _onError(err) {
+    console.log(err);
+  }
+
+  fetchCart() {
+    send(this._onError, this._onSuccess.bind(this), `${API_URL_CART}cartData.json`)
+  }
+
+
+
+  counter() {
+    const cartCounter = document.querySelector('.cart').querySelector('span');
+    let count = 0;
+    
+    this.list.forEach((product) => {
+      count += product.count;
+    });
+
+    cartCounter.innerHTML = `${count}`;
+  }
+
   _renderRow({id, good, count}) {
     return `<tr><td>${id}</td><td>${good.title}</td><td>${good.price}</td><td>${count}</td><td><a href="" id="${id} class="remove-button">Удалить</a></td></tr>`;
   }
@@ -108,17 +179,22 @@ class Showcase {
     this.cart = cart;
   }
 
+  _onSuccess(response) {
+    const data = JSON.parse(response)
+    data.forEach(product => {
+      this.list.push(
+        // new Good({id: product.id_product, title:product.product_name, price:product.price})
+        new Good({id: product.id, title: product.title, price: product.price, img: product.img})
+      )
+    });
+  }
+
+  _onError(err) {
+    console.log(err);
+  }
+
   fetchGoods() {
-    this.list = [
-      new Good({id: 1, title: 'Футболка', price: 140, img: '1'}),
-      new Good({id: 2, title: 'Кроссовки', price: 320, img: '4'}),
-      new Good({id: 3, title: 'Куртка', price: 24, img: '3'}),
-      new Good({id: 4, title: 'Футболка', price: 130, img: '6'}),
-      new Good({id: 5, title: 'Кроссовки', price: 390, img: '5'}),
-      new Good({id: 6, title: 'Куртка', price: 24, img: '7'}),
-      new Good({id: 7, title: 'Носки', price: 25, img: '2'}),
-      new Good({id: 8, title: 'Кроссовки', price: 245, img: '8'}),
-    ]
+    send(this._onError, this._onSuccess.bind(this), `${API_URL}catalogData.json`)
   }
 
   addToCart(id) {
@@ -147,17 +223,25 @@ const cart = new Cart()
 const showcase = new Showcase(cart)
 
 showcase.fetchGoods()
+cart.fetchCart()
 
-showcase.addToCart(1)
-showcase.addToCart(1)
-showcase.addToCart(1)
-showcase.addToCart(3)
-showcase.addToCart(2)
-showcase.addToCart(2)
-showcase.addToCart(4)
-showcase.addToCart(4)
-cart.remove(1)
+setTimeout(() => {
 
-showcase.render()
-cart.render()
+  // showcase.addToCart(1)
+  // showcase.addToCart(1)
+  // showcase.addToCart(1)
+  // showcase.addToCart(3)
+  // showcase.addToCart(2)
+  // showcase.addToCart(2)
+  // showcase.addToCart(4)
+  // showcase.addToCart(4)
+  // cart.remove(1)
+  // cart.remove(4)
+
+  showcase.render()
+  cart.render()
+  cart.counter()
+  console.log(cart)
+
+}, 1000)
 
