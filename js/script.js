@@ -1,41 +1,5 @@
-// const API_URL = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses/';
 const API_URL = 'https://raw.githubusercontent.com/MaximGubanov/online-store-api/main/responses/';
 const API_URL_CART = 'https://raw.githubusercontent.com/MaximGubanov/online-store-api/main/responses/';
-
-function send(onError, onSuccess, url, method = 'GET', data = '', headers = {}, timeout = 60000) {
- 
-  let xhr;
-
-  if (window.XMLHttpRequest) {
-    // Chrome, Mozilla, Opera, Safari
-    xhr = new XMLHttpRequest();
-  } else if (window.ActiveXObject) { 
-    // Internet Explorer
-    xhr = new ActiveXObject("Microsoft.XMLHTTP");
-  }
-
-  for([key, value] of Object.entries(headers)) {
-    xhr.setRequestHeader(key, value)
-  }
-
-  xhr.timeout = timeout; 
-
-  xhr.ontimeout = onError;
-
-  xhr.onreadystatechange = function () {
-    if (xhr.readyState === 4) {
-      if(xhr.status < 400) {
-        onSuccess(xhr.responseText)
-      } else if (xhr.status >= 400) {
-        onError(xhr.status)
-      }
-    }
-  }
-
-  xhr.open(method, url, true);
-
-  xhr.send(data);
-}
 
 function getCounter() {
   let last = 0;
@@ -127,27 +91,6 @@ class Cart {
     } 
   }
 
-
-
-  _onSuccess(response) {
-    const data = JSON.parse(response)
-    data.forEach(product => {
-      this.list.push(
-        new GoodStack({id: product.id, title: product.title, price: product.price, count: product.count})
-      )
-    });
-  }
-
-  _onError(err) {
-    console.log(err);
-  }
-
-  fetchCart() {
-    send(this._onError, this._onSuccess.bind(this), `${API_URL_CART}cartData.json`)
-  }
-
-
-
   counter() {
     const cartCounter = document.querySelector('.cart').querySelector('span');
     let count = 0;
@@ -170,20 +113,38 @@ class Cart {
       let goodsList = this._renderRow(row);
       $cartBody.insertAdjacentHTML('beforeend', goodsList);
     });
+
+    this.counter();
   }
 }
 
 class Showcase {
   constructor(cart){
+
     this.list = [];
     this.cart = cart;
+    this.filtred = [];
+
+    this.$goodsList = document.querySelector('.goods-list');
+    this.searchInput = document.getElementById('search-input');
+    this.searchBtn = document.getElementById('search-btn');
+
+    this.searchBtn.addEventListener('click', this.filter.bind(this));
+  }
+
+  filter() {
+    const search = new RegExp(this.searchInput.value, 'i');
+    this.filtred = this.list.filter((good) => search.test(good.title));
+    this.$goodsList.innerHTML = '';
+    this.render(this.filtred);
   }
 
   _onSuccess(response) {
-    const data = JSON.parse(response)
+    // const data = JSON.parse(response)
+    const data = response;
+
     data.forEach(product => {
       this.list.push(
-        // new Good({id: product.id_product, title:product.product_name, price:product.price})
         new Good({id: product.id, title: product.title, price: product.price, img: product.img})
       )
     });
@@ -194,8 +155,16 @@ class Showcase {
   }
 
   fetchGoods() {
-    send(this._onError, this._onSuccess.bind(this), `${API_URL}catalogData.json`)
+    return fetch(`${API_URL}catalogData.json`)
+    .then((response) => {
+      return response.json()
+    })
+    .then((response) => {
+      this._onSuccess(response)
+      return response
+    })
   }
+
 
   addToCart(id) {
     const idx = this.list.findIndex((good) => id == good.id)
@@ -209,12 +178,10 @@ class Showcase {
     return `<div class="goods-item"><img src="img/${img}.jpg" alt=""><h3>${title}</h3><p>Цена: ${price}</p><p><a href="#" id="${id}" class="add-button">Добавить</a></p></p></div>`;
   }
 
-  render() {
-    const $goodsList = document.querySelector('.goods-list');
-
-    this.list.forEach((row) => {
+  render(list = this.list) {
+    list.forEach((row) => {
       let goodsList = this._renderRow(row);
-      $goodsList.insertAdjacentHTML('beforeend', goodsList);
+      this.$goodsList.insertAdjacentHTML('beforeend', goodsList);
     });
   }
 }
@@ -222,26 +189,22 @@ class Showcase {
 const cart = new Cart()
 const showcase = new Showcase(cart)
 
-showcase.fetchGoods()
-cart.fetchCart()
+const promise = showcase.fetchGoods()
 
-setTimeout(() => {
-
-  // showcase.addToCart(1)
-  // showcase.addToCart(1)
-  // showcase.addToCart(1)
-  // showcase.addToCart(3)
-  // showcase.addToCart(2)
-  // showcase.addToCart(2)
-  // showcase.addToCart(4)
-  // showcase.addToCart(4)
-  // cart.remove(1)
-  // cart.remove(4)
+promise.then(() => {
+  showcase.addToCart(1)
+  showcase.addToCart(1)
+  showcase.addToCart(1)
+  showcase.addToCart(3)
+  showcase.addToCart(2)
+  showcase.addToCart(2)
+  showcase.addToCart(4)
+  showcase.addToCart(4)
+  cart.remove(1)
+  cart.remove(4)
 
   showcase.render()
+  
   cart.render()
-  cart.counter()
-  console.log(cart)
-
-}, 1000)
-
+})
+.catch((error) => {console.log(error)})
